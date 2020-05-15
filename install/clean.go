@@ -49,7 +49,7 @@ node:
 	}
 	//3. 删除所有节点
 all:
-	if len(deleteNodes) == 0 && len(deleteMasters) == 0 {
+	if len(deleteNodes) == 0 && len(deleteMasters) == 0 && CleanAll {
 		if !CleanForce { // flase
 			result := Confirm(`clean command will clean all masters and nodes, continue clean (y/n)?`)
 			if !result {
@@ -65,6 +65,7 @@ all:
 	}
 end:
 	if len(i.Masters) == 0 && len(i.Nodes) == 0 {
+		logger.Debug("clean nodes and masters is skip")
 		os.Exit(-1)
 	}
 	i.CheckValid()
@@ -157,5 +158,8 @@ func clean(host string) {
 	cmd = fmt.Sprintf("sed -i \"/%s/d\" /etc/hosts ", ApiServer)
 	_ = SSHConfig.CmdAsync(host, cmd)
 	cmd = fmt.Sprint("rm -rf ~/kube")
+	_ = SSHConfig.CmdAsync(host, cmd)
+	//clean pki certs
+	cmd = fmt.Sprint("rm -rf /etc/kubernetes/pki")
 	_ = SSHConfig.CmdAsync(host, cmd)
 }
